@@ -6,49 +6,42 @@ import time
 from datetime import datetime
 import socket
 
-"""This function (or "callback") will be executed when this client receives 
-a connection acknowledgement packet response from the server. """
 def on_connect(client, userdata, flags, rc):
-    print("Connected to server (i.e., broker) with result code "+str(rc))
-
+    print("Connected to server (i.e., broker) with result code " + str(rc))
 
 if __name__ == '__main__':
-    #get IP address
-    ip_address= socket.gethostbyname(socket.gethostname()
-    """your code here"""
-    #create a client object
-    client = mqtt.Client()
-    
-    #attach the on_connect() callback function defined above to the mqtt client
-    client.on_connect = on_connect
-    """Connect using the following hostname, port, and keepalive interval (in 
-    seconds). We added "host=", "port=", and "keepalive=" for illustrative 
-    purposes. You can omit this in python.
-        
-    The keepalive interval indicates when to send keepalive packets to the 
-    server in the event no messages have been published from or sent to this 
-    client. If the connection request is successful, the callback attached to
-    `client.on_connect` will be called."""
+    # Get IP address
+    ip_address = socket.gethostbyname(socket.gethostname())
 
+    # Create a client object
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1)
+
+    # Attach the on_connect() callback function defined above to the mqtt client
+    client.on_connect = on_connect
+
+    # Connect to the MQTT broker
     client.connect(host="test.mosquitto.org", port=1883, keepalive=60)
 
-    """ask paho-mqtt to spawn a separate thread to handle
-    incoming and outgoing mqtt messages."""
+    # Ask paho-mqtt to spawn a separate thread to handle incoming and outgoing mqtt messages
     client.loop_start()
     time.sleep(1)
 
     while True:
-        #replace user with your USC username in all subscriptions
-        client.publish("user/ipinfo", f"{ip_address}")
+        # Replace "user" with your USC username in all subscriptions
+        client.publish("aleenaim/ipinfo/ip", f"{ip_address}")
         print("Publishing ip address")
         time.sleep(4)
 
-        #get date and time 
-        """your code here"""
-        current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        #publish date and time in their own topics
-        """your code here"""
-        client.publish("user/ipinfo/date", current_datetime.split()[0])
-        client.publish("user/ipinfo/date", current_datetime.split()[1])
-        print("publishing date: ", current_datetime.split()[0])
-        print("publishing time: ", current_datetime.split()[1])
+        # Get date and time
+        current_datetime = datetime.now()
+
+        # Publish date and time in their own topics
+        client.publish("aleenaim/ipinfo/date", current_datetime.strftime("%Y-%m-%d"))
+        client.publish("aleenaim/ipinfo/time", current_datetime.strftime("%H:%M:%S"))
+
+        print("Publishing date:", current_datetime.strftime("%Y-%m-%d"))
+        print("Publishing time:", current_datetime.strftime("%H:%M:%S"))
+
+        # Adding a short sleep time for stability
+        time.sleep(4)
+
